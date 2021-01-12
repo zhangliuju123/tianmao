@@ -8,12 +8,15 @@ import json
 import os
 import random
 import time
-
+import pyautogui
 from scrapy import signals
 from scrapy.downloadermiddlewares.useragent import UserAgentMiddleware
 from scrapy.http import HtmlResponse
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 from .settings import USER_AGENT_LIST
+from selenium.webdriver.common.by import By
 
 
 class TianmaoSpiderMiddleware:
@@ -137,6 +140,7 @@ class RotateUserAgentMiddleware(UserAgentMiddleware):
 
 class TianmaoSeleniumDownloaderMiddleWare(object):
     def process_request(self, request, spider):
+        json_path = os.path.join(os.path.dirname(os.getcwd()), 'cookies.json')
         try:
             if spider.name == 'Tianmao' and request.meta.get('type', None) == 'home':
                 print(spider.name)
@@ -144,44 +148,34 @@ class TianmaoSeleniumDownloaderMiddleWare(object):
                 query_key = request.meta.get('query_key', None)  # 获取到关键字
                 driver.get(request.url)
                 time.sleep(2)
-                # 模拟用户登录
-                json_path = os.path.join(os.path.dirname(os.getcwd()), 'cookies.json')
+                driver.find_element_by_name('q').send_keys(query_key)  # 输入关键字
+                driver.find_elements_by_xpath("//button[@type='submit']")[0].click()
+                WebDriverWait(driver, 2, 0.5).until(
+                    EC.presence_of_all_elements_located((By.XPATH, "//a[@class='sn-login']")))
+                driver.find_elements_by_xpath("//a[@class='sn-login']")[0].click()
+                time.sleep(10)
+                cookies = driver.get_cookies()
+                with open(json_path, 'a', encoding='utf8') as a:
+                    a.write(json.dumps(cookies))
+                return HtmlResponse(
+                    url=spider.driver.current_url,
+                    body=spider.driver.page_source,
+                    request=request,
+                    encoding="utf-8",
+                )
+            elif spider.name == 'Tianmao' and request.meta.get('type', None) == 'detail':
+                driver = spider.driver
                 if os.path.exists(json_path):
                     with open(json_path, 'r', encoding='utf8') as f:
                         listCookies = json.loads(f.read())
                         for i in listCookies:
                             # 在request中加入cookie
                             driver.add_cookie(i)
-                else:
-                    driver.find_elements_by_xpath("//a[@class='sn-login']")[0].click()
-                    time.sleep(5)
-                    user_path = os.path.join(os.path.dirname(os.getcwd()), 'user.txt')
-                    with open(user_path, 'r', encoding='utf8') as f:
-                        user_list = f.readlines()
-                        username = user_list[0].split(',')[0]
-                        password = user_list[0].split(',')[1]
-                        driver.switch_to.frame("J_loginIframe")  # 定位到iframe标签
-                        # 模拟用户登录
-                        driver.find_element_by_id("fm-login-id").send_keys(username)
-                        driver.find_element_by_id("fm-login-password").send_keys(password)
-                        driver.find_element_by_xpath("//button[@type='submit']").click()
-                        # 保存cookies到本地
-                        cookies = driver.get_cookies()
-                        with open(json_path, 'a', encoding='utf8') as a:
-                            a.write(json.dumps(cookies))
-                        # driver.switch_to.default_content()
-                    time.sleep(5)
-                driver.find_element_by_name('q').send_keys(query_key)
-                driver.find_elements_by_xpath("//button[@type='submit']")[0].click()
-                time.sleep(5)
-                # js = "window.scrollTo(window.pageXOffset, document.body.scrollHeight)"
-                # spider.driver.execute_script(js)
-                # time.sleep(2)
-                # return HtmlResponse(
-                #     url=spider.driver.current_url,
-                #     body=spider.driver.page_source,
-                #     request=request,
-                #     encoding="utf-8",
-                # )
+                        return HtmlResponse(
+                            url=spider.driver.current_url,
+                            body=spider.driver.page_source,
+                            request=request,
+                            encoding="utf-8",
+                        )
         except Exception as e:
             print(e)

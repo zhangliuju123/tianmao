@@ -26,13 +26,13 @@ ROBOTSTXT_OBEY = False
 # Configure a delay for requests for the same website (default: 0)
 # See https://docs.scrapy.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-DOWNLOAD_DELAY = 3
+DOWNLOAD_DELAY = 5
 # The download delay setting will honor only one of:
 # CONCURRENT_REQUESTS_PER_DOMAIN = 16
 # CONCURRENT_REQUESTS_PER_IP = 16
 
 # Disable cookies (enabled by default)
-# COOKIES_ENABLED = False
+COOKIES_ENABLED = False
 
 # Disable Telnet Console (enabled by default)
 # TELNETCONSOLE_ENABLED = False
@@ -54,8 +54,10 @@ DOWNLOAD_DELAY = 3
 DOWNLOADER_MIDDLEWARES = {
     'tianmao.middlewares.TianmaoDownloaderMiddleware': 500,
     'tianmao.middlewares.TianmaoSeleniumDownloaderMiddleWare': 501,
+    'tianmao.middlewares.RotateUserAgentMiddleware': 400,
     'scrapy.contrib.downloadermiddleware.useragent.UserAgentMiddleware': None,
 }
+
 USER_AGENT_LIST = [
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36",
     "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/22.0.1207.1 Safari/537.1",
@@ -109,13 +111,7 @@ USER_AGENT_LIST = [
 # HTTPCACHE_DIR = 'httpcache'
 # HTTPCACHE_IGNORE_HTTP_CODES = []
 # HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
-DB_SET_MAP = {
-    'user': 'root',
-    'passwd': 'root',
-    'host': '127.0.0.1',
-    'port': '3306',
-    'db': 'pachong'
-}
+
 # 加入log日志
 # LOG_LEVEL = "INFO"
 #

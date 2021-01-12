@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import scrapy
-
 from head import create_bs_driver
 from tianmao.items import TianmaoItem
 
@@ -38,9 +37,10 @@ class TianmaoSpider(scrapy.Spider):
         print('回调成功,可以正常爬取')
         detail_list = response.xpath("//div[@class='productImg-wrap']//a/@href").extract()
         for detail in detail_list:
-            print(detail)
             detail_url = response.urljoin(detail)  # 拼上协议
-            detail_request = scrapy.Request(url=detail_url, callback=self.detail_url)
+            print(detail_url)
+            detail_request = scrapy.Request(url=detail_url, meta={'type': 'detail'}, callback=self.detail_url,
+                                            dont_filter=True)
             yield detail_request
 
     def detail_url(self, response):
