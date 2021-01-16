@@ -7,13 +7,13 @@ from tianmao.items import TianmaoItem
 
 class TianmaoSpider(scrapy.Spider):
     name = 'Tianmao'
-    allowed_domains = ['tmall.com', 'detail.tmall.com']
+    allowed_domains = ['tmall.com', 'detail.tmall.com', 'list.tmall.com']
     start_urls = ['https://www.tmall.com//']
     query_key = "口罩"
 
     def __init__(self):
         scrapy.Spider.__init__(self, self.name)
-        self.driver = create_bs_driver(type='chrome')
+        self.driver = create_bs_driver(type="chrome")
         self.driver.set_page_load_timeout(50)
 
     def __del__(self):
@@ -42,6 +42,13 @@ class TianmaoSpider(scrapy.Spider):
             detail_request = scrapy.Request(url=detail_url, meta={'type': 'detail'}, callback=self.detail_url,
                                             dont_filter=True)
             yield detail_request
+        try:
+            next_list = response.xpath("//a[@class=ui-page-next]/@href").extract()
+            next_url = "https;//list.tmall.com/search_product.htm" + next_list
+            next_request = scrapy.Request(url=next_url, meta={'type': 'next'}, callback=self.parse, dont_filter=True)
+            yield next_request
+        except Exception as e:
+            print("没有下一页了")
 
     def detail_url(self, response):
         print('已经拿到详情页url,开始解析')

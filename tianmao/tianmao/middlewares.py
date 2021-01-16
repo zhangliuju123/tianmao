@@ -12,6 +12,7 @@ import pyautogui
 from scrapy import signals
 from scrapy.downloadermiddlewares.useragent import UserAgentMiddleware
 from scrapy.http import HtmlResponse
+from selenium.webdriver import ActionChains
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
@@ -141,7 +142,11 @@ class RotateUserAgentMiddleware(UserAgentMiddleware):
 class TianmaoSeleniumDownloaderMiddleWare(object):
     def process_request(self, request, spider):
         json_path = os.path.join(os.path.dirname(os.getcwd()), 'cookies.json')
+        user_path = os.path.join(os.path.dirname(os.getcwd()), 'user.txt')
         try:
+            '''
+            完成模拟登录
+            '''
             if spider.name == 'Tianmao' and request.meta.get('type', None) == 'home':
                 print(spider.name)
                 driver = spider.driver  # driver跟着requset一起到中间件
@@ -153,9 +158,24 @@ class TianmaoSeleniumDownloaderMiddleWare(object):
                 WebDriverWait(driver, 2, 0.5).until(
                     EC.presence_of_all_elements_located((By.XPATH, "//a[@class='sn-login']")))
                 driver.find_elements_by_xpath("//a[@class='sn-login']")[0].click()
-                time.sleep(10)
+                # with open(user_path, 'r', encoding='utf8') as f:
+                #     user_list = f.read().split(',')
+                #     username = user_list[0]        该方法已失效,改使用二维码登录
+                #     password = user_list[1]
+                # driver.switch_to_frame("J_loginIframe")
+                # driver.find_element_by_name('fm-login-id').send_keys(username)
+                # driver.find_element_by_name('fm-login-password').send_keys(password)
+                # remain = 300 - 40
+                # WebDriverWait(driver, 2, 0.5).until(
+                #     EC.presence_of_all_elements_located((By.XPATH, "//*[@id='nc_1_n1z']")))
+                # slicer = driver.find_element_by_xpath('//*[@id="nc_1_n1z"]')
+                # ActionChains(driver).click_and_hold(slicer).perform()
+                # ActionChains(driver).move_by_offset(xoffset=remain, yoffset=0).perform()
+                # ActionChains(driver).release(slicer).perform()
+                # driver.find_elements_by_xpath("//button[@type='submit']")[0].click()
+                time.sleep(5)
                 cookies = driver.get_cookies()
-                with open(json_path, 'a', encoding='utf8') as a:
+                with open(json_path, 'w', encoding='utf8') as a:
                     a.write(json.dumps(cookies))
                 return HtmlResponse(
                     url=spider.driver.current_url,
@@ -164,6 +184,20 @@ class TianmaoSeleniumDownloaderMiddleWare(object):
                     encoding="utf-8",
                 )
             elif spider.name == 'Tianmao' and request.meta.get('type', None) == 'detail':
+                driver = spider.driver
+                if os.path.exists(json_path):
+                    with open(json_path, 'r', encoding='utf8') as f:
+                        listCookies = json.loads(f.read())
+                        for i in listCookies:
+                            # 在request中加入cookie
+                            driver.add_cookie(i)
+                        return HtmlResponse(
+                            url=spider.driver.current_url,
+                            body=spider.driver.page_source,
+                            request=request,
+                            encoding="utf-8",
+                        )
+            elif spider.name == "Tianmao" and request.meta.get("type", None) == 'next':
                 driver = spider.driver
                 if os.path.exists(json_path):
                     with open(json_path, 'r', encoding='utf8') as f:

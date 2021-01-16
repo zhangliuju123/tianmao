@@ -113,15 +113,15 @@ USER_AGENT_LIST = [
 # HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
 # 加入log日志
-# LOG_LEVEL = "INFO"
-#
-# from datetime import datetime
-# import os
-#
-# today = datetime.now()
-#
-# LOG_DIR = "log"
-# if not os.path.exists(LOG_DIR):
-#     os.mkdir(LOG_DIR)
-#
-# LOG_FILE = "{}/scrapy_{}_{}_{}.log".format(LOG_DIR, today.year, today.month, today.day)
+LOG_LEVEL = "INFO"
+
+from datetime import datetime
+import os
+
+today = datetime.now()
+
+LOG_DIR = "log"
+if not os.path.exists(LOG_DIR):
+    os.mkdir(LOG_DIR)
+
+LOG_FILE = "{}/scrapy_{}_{}_{}.log".format(LOG_DIR, today.year, today.month, today.day)

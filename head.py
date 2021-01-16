@@ -12,9 +12,9 @@ def create_bs_driver(type="firefox", headless=False):
     :return:
     '''
     if type == "firefox":  # 火狐浏览器
-        firefox_opt = webdriver.FirefoxOptions()
-        firefox_opt.add_argument("--headless") if headless else None
-        driver = webdriver.Firefox(firefox_options=firefox_opt)
+        driver = webdriver.Firefox()
+        # firefox_opt.add_argument("--headless") if headless else None
+        # driver = webdriver.Firefox(firefox_options=firefox_opt)
     elif type == "chrome":  # 谷歌浏览器
         chrome_opt = webdriver.ChromeOptions()
         with open('G:\PythonWork\MyScrapy\stealth.min.js') as f:
@@ -29,7 +29,7 @@ def create_bs_driver(type="firefox", headless=False):
         driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
             "source": js
         })
-        # 屏蔽selenium检测,提前运行js的方法，把window.navigator.webdriver设为"undefined"
+        # 屏蔽selenium检测,提前运行js的方法，把window.navigator.webdriver设为"undefined" 该方法已经失效
         # driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
         #     "source": """Object.defineProperty(navigator, 'webdriver', {get: () => undefined})""",
         # })
