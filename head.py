@@ -23,8 +23,10 @@ def create_bs_driver(type="firefox", headless=False):
         chrome_opt.add_argument(f'--window-size={1200},{1000}')
         chrome_opt.add_experimental_option("excludeSwitches", ['enable-automation'])
         chrome_opt.add_argument("--headless") if headless else None
-        # chrome_opt.add_experimental_option("prefs",
-        #                                    {"profile.managed_default_content_settings.images": 2})  # 加快请求速度,设置禁止加载图片
+        chrome_opt.add_argument(
+            "--disable-blink-features=AutomationControlled")  # 给浏览器添加设置隐藏掉window.navigator.webdriver
+        chrome_opt.add_experimental_option("prefs",
+                                           {"profile.managed_default_content_settings.images": 2})  # 加快请求速度,设置禁止加载图片
         driver = webdriver.Chrome(chrome_options=chrome_opt)
         driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
             "source": js

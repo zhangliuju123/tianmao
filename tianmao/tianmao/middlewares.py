@@ -158,21 +158,14 @@ class TianmaoSeleniumDownloaderMiddleWare(object):
                 WebDriverWait(driver, 2, 0.5).until(
                     EC.presence_of_all_elements_located((By.XPATH, "//a[@class='sn-login']")))
                 driver.find_elements_by_xpath("//a[@class='sn-login']")[0].click()
-                # with open(user_path, 'r', encoding='utf8') as f:
-                #     user_list = f.read().split(',')
-                #     username = user_list[0]        该方法已失效,改使用二维码登录
-                #     password = user_list[1]
-                # driver.switch_to_frame("J_loginIframe")
-                # driver.find_element_by_name('fm-login-id').send_keys(username)
-                # driver.find_element_by_name('fm-login-password').send_keys(password)
-                # remain = 300 - 40
-                # WebDriverWait(driver, 2, 0.5).until(
-                #     EC.presence_of_all_elements_located((By.XPATH, "//*[@id='nc_1_n1z']")))
-                # slicer = driver.find_element_by_xpath('//*[@id="nc_1_n1z"]')
-                # ActionChains(driver).click_and_hold(slicer).perform()
-                # ActionChains(driver).move_by_offset(xoffset=remain, yoffset=0).perform()
-                # ActionChains(driver).release(slicer).perform()
-                # driver.find_elements_by_xpath("//button[@type='submit']")[0].click()
+                with open(user_path, 'r', encoding='utf8') as f:
+                    user_list = f.read().split(',')
+                    username = user_list[0]
+                    password = user_list[1]
+                driver.switch_to_frame("J_loginIframe")
+                driver.find_element_by_name('fm-login-id').send_keys(username)
+                driver.find_element_by_name('fm-login-password').send_keys(password)
+                driver.find_elements_by_xpath("//button[@type='submit']")[0].click()
                 time.sleep(5)
                 cookies = driver.get_cookies()
                 with open(json_path, 'w', encoding='utf8') as a:
